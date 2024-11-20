@@ -1,0 +1,74 @@
+.panner {
+    position: fixed;
+    left: -25vw;
+    right: -25vw;
+    bottom: -20vh;
+    height: 35vh;
+    cursor: grab;
+    z-index: 900;
+    transition: all .5s;
+    background-image: radial-gradient(closest-side, black, transparent);
+    opacity: 0;
+    mix-blend-mode: multiply;
+    filter: blur(1em);
+ 
+    &--active {
+        opacity: .6; 
+    }
+
+    @media (hover:hover ){ 
+        &:hover {
+            opacity: .6;  
+        }  
+    }
+ 
+    &--active {
+        cursor: grabbing;
+    }
+}
+
+.game-stats {
+    position: fixed;
+    right: 10vw;
+    left: 10vw;
+    bottom: min(4vw, 2em);
+    z-index: 1000;
+    font-size: clamp(1em, 3vw, 2em);
+    gap: 1.5em;
+    pointer-events: none;
+
+    @media (max-width: 700px) {
+        right: 8vw;
+        left: 8vw;
+        bottom: 8vw;
+    }
+
+    &__back {
+        display: inline-flex;
+        gap: .5em;
+        font-size: 1.25em;
+        align-items: center;
+        text-align: center;
+        pointer-events: all;
+        margin: -.75em;
+        border: .75em solid transparent;
+        margin-right: auto;
+        transition: all .25s; 
+
+        &:hover { 
+            translate: -.15em 0;
+        }
+    }
+
+    &__stat {
+        display: flex;
+        gap: .35em;
+
+        em {
+            margin-left: auto;
+            font-weight: bold;
+            font-style: italic;
+            font-family: var(--font-sans);
+        }
+    }
+}

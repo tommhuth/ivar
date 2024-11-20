@@ -1,0 +1,20 @@
+@import "global.scss";
+@import "variables.scss";
+@import "typography.scss";
+
+.loader {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);  
+    letter-spacing: .21em;
+    font-size: .75em;
+    text-transform: uppercase;
+    font-weight: 300;
+    z-index: 0; 
+    font-family: var(--font-sans);
+}
+
+#canvas {
+    height: 100%;
+}

@@ -1,0 +1,91 @@
+.intro {
+    box-sizing: border-box;
+    flex-direction: column;
+    justify-content: center;
+    inset: clamp(2em, 5vw, 5em);
+    z-index: 2;
+    cursor: e-resize;
+    border: 1.5em solid white;
+    position: fixed;
+    text-shadow: 0 0 2em rgba(#000, .25);
+
+    @media (max-width: 700px) {
+        border-width: 1.5em;
+        inset: -1px;
+        justify-content: flex-end;
+    }
+
+    &__title {
+        font-size: clamp(2em, 12vw, 12em);
+        font-weight: 900;
+        line-height: .9; 
+        text-transform: uppercase;
+        font-family: Roboto;
+        margin-bottom: .6em;
+        text-align: center;
+
+        @media (max-width: 800px) {
+            margin-left: 0;
+            margin-bottom: 22vh;
+            margin-top: auto; 
+            line-height: 1;
+            font-size: 14vmin;
+            rotate: -90deg;    
+            border-left: .35em solid white;
+            padding-left: .4em;
+            translate: 0 -50px;
+            text-align: left;
+        }
+
+        @media (max-width: 550px) { 
+            font-size: 20vmin; 
+            margin-bottom: 5vh;
+        }
+    }
+
+    &__stage {
+        position: absolute;
+        left: 50%;
+        bottom: 1em;
+        translate: -50% 0;
+        line-height: 1;
+        font-size: clamp(1.25em, 5vw, 2.5em);
+        align-items: center; 
+        display: flex;
+        gap: 2.5em;
+
+        @media (max-width: 700px) {
+            position: static;
+            translate: 0 0;
+            gap: 0;
+            place-content: center; 
+            margin-bottom: 1em;
+        } 
+
+        strong {
+            flex: 1 1; 
+            display: block;
+            text-align: center;  
+        }
+
+        button {
+            padding: 2rem;  
+            box-sizing: border-box;
+            transition: all .25s;  
+            flex: 0 0; 
+            --offset: 0;
+
+            &:first-child {
+                --offset: -.125em;
+            }
+            
+            &:last-child {
+                --offset: .125em;
+            }
+
+            &:hover { 
+                translate: var(--offset) 0;
+            }
+        }
+    }
+}   
