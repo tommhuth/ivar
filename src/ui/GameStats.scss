@@ -31,7 +31,7 @@
     position: fixed;
     right: 10vw;
     left: 10vw;
-    bottom: min(4vw, 2em);
+    bottom: max(4vw, 2em, env(safe-area-inset-bottom));
     z-index: 1000;
     font-size: clamp(1em, 3vw, 2em);
     gap: 1.5em;

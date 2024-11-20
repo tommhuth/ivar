@@ -30,6 +30,7 @@ export default defineConfig({
                 description: "Untitled Furniture Game",
                 orientation: "landscape",
                 theme_color: "#0026ff",
+                background_color: "#0026ff",
                 icons: [
                     {
                         "src": "/icons/pwa-icon.png",
