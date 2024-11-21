@@ -27,10 +27,10 @@ export default defineConfig({
                 name: "Ivar",
                 short_name: "Ivar",
                 display: "fullscreen",
-                description: "Untitled Furniture Game",
+                description: "Untitled furniture game",
                 orientation: "landscape",
-                theme_color: "#0026ff",
-                background_color: "#0026ff",
+                theme_color: "#1b49cb",
+                background_color: "#1b49cb",
                 icons: [
                     {
                         "src": "/icons/pwa-icon.png",

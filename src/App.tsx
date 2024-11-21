@@ -18,11 +18,9 @@ export default function App() {
                     alpha: true,
                     powerPreference: "high-performance"
                 }}
-                style={{
-                    width: "100%",
+                style={{ 
                     left: 0,
-                    top: 0,
-                    height: "100%",
+                    top: 0, 
                     zIndex: 1,
                     position: "fixed",
                 }}
