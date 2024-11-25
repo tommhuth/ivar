@@ -131,8 +131,8 @@ export const stages: Stage[] = [
         title: "Stockholm",
         id: random.id(),
         settings: {
-            center: [2, 0, 6],
-            cameraStart: [-10, 0, 3],
+            center: [8, 0, 13],
+            cameraStart: [0, 0, 9],
             boundingRadius: 50, 
             background: "rgb(12, 62, 203)"
         },
@@ -187,10 +187,10 @@ export const stages: Stage[] = [
         ]
     },
     {
-        title: "Kungsbacka",
+        title: "Ödmjuk",
         id: random.id(),
         settings: {
-            center: [0, 0, 15],
+            center: [4, 0, 18],
             cameraStart: [0, 0, 22],
             boundingRadius: 60, 
             exitY: -2,
@@ -243,7 +243,7 @@ export const stages: Stage[] = [
         title: "Äpplarö",
         id: random.id(),
         settings: {
-            center: [5, 0, 0],
+            center: [-4, 0, -5],
             cameraStart: [5, 0, -10],
             boundingRadius: 50, 
             background: "rgb(12,62,203)"

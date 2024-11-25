@@ -1,6 +1,6 @@
 export default function Arrow({ direction = "right", strokeWidth = 6 }) {
     return (
-        <svg viewBox="0 0 100 50" style={{ overflow: "visible", width: "1em", display: "block" }}>
+        <svg viewBox="0 0 100 50">
             <line
                 x1={0}
                 x2={100}

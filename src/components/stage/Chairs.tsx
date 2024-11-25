@@ -3,12 +3,12 @@ import { useMemo } from "react"
 import { Euler, Line3, Matrix4, Vector3, Quaternion as ThreeQuaternion } from "three"
 import Config from "../../Config"
 import { ShapeDefinition, useInstancedBody } from "../../utils/cannon"
-import { useStageObjects } from "../../utils/hooks"
-import { usePopulateLocations } from "./Boxes"
+import { useStageObjects } from "../../utils/hooks" 
 import { useInstance } from "../InstancedMesh"
 import RidgidStageObject from "../RidgidStageObject"
-import { Chair, ObjectType } from "../../data/stages"
+import { type Chair, ObjectType } from "../../data/stages"
 import { Tuple3 } from "../../types/global"
+import { usePopulateLocations } from "@data/hooks"
 
 interface ChairProps {
     position: Tuple3

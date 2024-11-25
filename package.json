@@ -12,8 +12,7 @@
     },
     "dependencies": {
         "@huth/animate": "^3.0.0",
-        "@huth/random": "^4.0.0",
-        "@react-three/drei": "^9.117.3",
+        "@huth/random": "^4.0.0", 
         "@react-three/fiber": "^8.17.10",
         "@types/node": "^22.9.1",
         "@types/react": "^18.3.12",

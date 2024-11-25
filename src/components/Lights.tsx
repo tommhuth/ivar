@@ -90,13 +90,13 @@ export default function Lights() {
                     LIGHT_DIRECTION.y * .25,
                     -LIGHT_DIRECTION.z
                 ]}
-                intensity={.7}
+                intensity={.4}
                 color={"white"}
             />
 
             <directionalLight
                 color={"#fff"}
-                intensity={1.5}
+                intensity={1.75}
                 castShadow
                 onUpdate={updateShadowFrustum}
                 ref={lightRef} 
@@ -105,7 +105,7 @@ export default function Lights() {
                 shadow-bias={-0.003}
             />
 
-            <ambientLight intensity={.4} color="#fff" />
+            <ambientLight intensity={.2} color="#beffff" />
         </>
     )
 }

@@ -2,8 +2,8 @@ import { MeshLambertMaterial } from "three"
 
 const white = new MeshLambertMaterial({
     color: "#fff",
-    emissive: "rgb(159, 193, 255)",
-    emissiveIntensity: .4,
+    emissive: "rgb(200, 220, 255)",
+    emissiveIntensity: .5,
     toneMapped: false
 })
 

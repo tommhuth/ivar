@@ -20,10 +20,8 @@
 
     &__title {
         font-size: clamp(3em, 7vw, 9em);
-        text-transform: uppercase;
-        font-weight: 900;
-        line-height: 1; 
-        font-family: var(--font-sans);
+        text-transform: uppercase; 
+        line-height: 1;  
     }
 
     &__message {

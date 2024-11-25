@@ -23,38 +23,43 @@ export default function Intro() {
                 }
             }}
         >
-            <h1 className="intro__title">
-                Untitled <br /> furniture <br /> game
-            </h1>
+            <div className="intro__inner">
 
-            <div className="intro__stage">
-                <button
-                    onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        let index = stages.findIndex(i => i === stage)
+                <h1 className="intro__title">
+                    Untitled  <br /> furniture  <br />  game
+                </h1>
 
-                        setStage(stages[index === 0 ? stages.length - 1 : index - 1])
-                    }}
-                >
-                    <Arrow direction="left" />
-                    <span className="visually-hidden">Previous stage</span>
-                </button>
- 
-                <strong>{stage.title}</strong>
- 
-                <button
-                    onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        let index = stages.findIndex(i => i === stage)
+                <hr className="intro__hr" />
 
-                        setStage(stages[(index + 1) % stages.length])
-                    }}
-                >
-                    <Arrow />
-                    <span className="visually-hidden">Next stage</span>
-                </button>
+                <div className="intro__stage">
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            let index = stages.findIndex(i => i === stage)
+
+                            setStage(stages[index === 0 ? stages.length - 1 : index - 1])
+                        }}
+                    >
+                        <Arrow direction="left" />
+                        <span className="visually-hidden">Previous stage</span>
+                    </button>
+
+                    <strong lang="sv">{stage.title}</strong>
+
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            let index = stages.findIndex(i => i === stage)
+
+                            setStage(stages[(index + 1) % stages.length])
+                        }}
+                    >
+                        <Arrow />
+                        <span className="visually-hidden">Next stage</span>
+                    </button>
+                </div>
             </div>
         </header>
     )

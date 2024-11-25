@@ -1,78 +1,94 @@
 .intro {
     box-sizing: border-box;
-    flex-direction: column;
-    justify-content: center;
-    inset: clamp(2em, 5vw, 5em);
+    flex-direction: column; 
+    place-content: center;   
+    inset: 0; 
     z-index: 2;
-    cursor: e-resize;
-    border: 1.5em solid white;
+    cursor: n-resize;  
     position: fixed;
-    text-shadow: 0 0 2em rgba(#000, .25);
+    text-shadow: 0 0 1.25em rgba(#000, .2); 
 
-    @media (max-width: 700px) {
-        border-width: 1.5em;
-        border-top: none;
-        inset: -1px;
-        justify-content: flex-end;
+    &__inner { 
+        width: 55em; 
+        max-width: 75%;
+        box-sizing: border-box;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: auto;
+        margin-bottom: 8vw; 
+        display: flex;
+        flex-direction: column;
+
+        @media (orientation: portrait) {  
+            padding-bottom: max(env(safe-area-inset-bottom), 5vh);
+            max-width: none;
+            width: auto; 
+        }
     }
 
     &__title {
-        font-size: clamp(2em, 12vw, 12em);
-        font-weight: 900;
-        line-height: .9; 
-        text-transform: uppercase;
-        font-family: Roboto;
-        margin-bottom: .6em;
-        text-align: center;
+        font-size: 4em; 
+        line-height: 1.25; 
+        letter-spacing: .025em;
+        text-transform: uppercase; 
+        margin-bottom: 1em; 
+        font-weight: 350;
+        border-bottom: 3px solid rgba(#fff, .8);
+        padding-bottom: .5em; 
 
-        @media (max-width: 800px) {
-            margin-left: 0;
-            margin-bottom: 22vh;
+        br:last-of-type {
+            display: none;
+        }
+         
+        @media (orientation: portrait) { 
             margin-top: auto; 
-            line-height: 1;
-            font-size: 14vmin;
-            rotate: -90deg;    
-            border-left: .35em solid white;
-            padding-left: .4em;
-            translate: 0 -50px;
-            text-align: left;
-        }
+            margin-left: auto;
+            margin-right: auto; 
+            font-size: 10vh; 
+            writing-mode: vertical-rl;
+            text-orientation: sideways;
+            rotate: -180deg;    
+            border-top: .25em solid white;
+            border-bottom: none;
+            padding-top: .4em;   
+            padding-bottom: 0;
 
-        @media (max-width: 550px) { 
-            font-size: 20vmin; 
-            margin-bottom: 5vh;
-        }
+            br:last-of-type {
+                display: block;
+            }
+        } 
     }
 
-    &__stage {
-        position: absolute;
-        left: 50%;
-        bottom: 1em;
-        translate: -50% 0;
-        line-height: 1;
-        font-size: clamp(1.25em, 5vw, 2.5em);
+    &__stage { 
+        left: 50%;   
+        font-size: 1.5em;
+        letter-spacing: .025em;
         align-items: center; 
-        display: flex;
-        gap: 2.5em;
-
-        @media (max-width: 700px) {
-            position: static;
-            translate: 0 0;
-            gap: 0;
-            place-content: center; 
-            margin-bottom: 1em;
-        } 
+        display: flex;   
+        line-height: 1; 
+        place-content: center;  
+            
+        @media (max-width: 700px) { 
+            font-size: 1.25em;
+        }
 
         strong {
             flex: 1 1; 
             display: block;
             text-align: center;  
+            transition: all .15s; 
+            letter-spacing: .025em;
+            cursor: pointer;
+            
+            &:hover {
+                font-weight: 500;
+            }
         }
 
         button {
             padding: 2rem;  
-            box-sizing: border-box;
-            transition: all .25s;  
+            box-sizing: border-box; 
+            margin: -1.85rem; 
             flex: 0 0; 
             --offset: 0;
 
@@ -84,7 +100,12 @@
                 --offset: .125em;
             }
 
-            &:hover { 
+            svg {
+                transition: all .25s;  
+                width: 1.45em;
+            }
+
+            &:hover svg { 
                 translate: var(--offset) 0;
             }
         }

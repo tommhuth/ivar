@@ -1,0 +1,35 @@
+.score-message {
+    --x: -100em;
+    --y: -100em; 
+    --offset-y: 0px;
+    font-size: 2.5em;
+    font-weight: 100;
+    position: fixed;
+    z-index: 1000;
+    left: var(--x);
+    top: var(--y);
+    translate: -50% calc(var(--offset-y) - 50%);
+    animation: out 2s both cubic-bezier(0.25, 1, 0.5, 1);
+} 
+
+@property --offset-y {
+    syntax: "<length>";
+    inherits: false;
+    initial-value: 0;
+}
+
+@keyframes out {
+    from {
+        opacity: 1; 
+    }
+
+    40% {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+        --offset-y: -4em; 
+        font-weight: 600;
+    }
+}

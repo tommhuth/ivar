@@ -3,12 +3,12 @@ import { useMemo } from "react"
 import { Euler, Line3, Matrix4, Vector3, Quaternion as ThreeQuaternion } from "three"
 import Config from "../../Config"
 import { ShapeDefinition, useInstancedBody } from "../../utils/cannon"
-import { useOrientationObserver, useStageObjects } from "../../utils/hooks"
-import { usePopulateLocations } from "./Boxes"
+import { useOrientationObserver, useStageObjects } from "../../utils/hooks" 
 import { useInstance } from "..//InstancedMesh"
 import RidgidStageObject from "../RidgidStageObject"
-import { ObjectType, Table } from "../../data/stages"
+import { ObjectType, type Table } from "../../data/stages"
 import { Tuple3 } from "../../types/global"
+import { usePopulateLocations } from "@data/hooks"
 
 interface TableProps {
     position: Tuple3

@@ -2,12 +2,12 @@ import { Vec3, Box as BoxShape } from "cannon-es"
 import { useMemo } from "react"
 import { Euler, Line3, Matrix4, Quaternion, Vector3 } from "three" 
 import { ShapeDefinition, useInstancedBody } from "../../utils/cannon"
-import { useStageObjects } from "../../utils/hooks" 
-import { usePopulateLocations } from "./Boxes"
+import { useStageObjects } from "../../utils/hooks"  
 import { useInstance } from "../InstancedMesh"
 import RidgidStageObject from "../RidgidStageObject"
-import { ObjectType, TableChair } from "../../data/stages"
+import { ObjectType, type TableChair } from "../../data/stages"
 import { Tuple3 } from "../../types/global"
+import { usePopulateLocations } from "@data/hooks"
 
 interface ChairProps {
     position: Tuple3

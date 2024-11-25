@@ -64,7 +64,7 @@ const createDefaultStore = () => {
     return {
         instances: {},
         state: State.LOADING,
-        stage: stages[1],
+        stage: stages[3],
         balls: [],
         boxes: [],
         id: random.id(),

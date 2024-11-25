@@ -1,8 +1,13 @@
 # Furniture based physics puzzler
-React + Cannonjs. Completely unrelated to toast.
+React + Cannonjs. 
 
 ## Todo
-- clean up levels
-- fix stage change background flicker
+- simplefy control scheme?
+- replace boxes with manual html
+- fix level bounding radius fix 
+- clean up animation 
+- ui for game over update 
+- animate ui 
+
 
 ## Resources 

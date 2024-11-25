@@ -2,13 +2,13 @@ import { Vec3, Box as BoxShape } from "cannon-es"
 import { useMemo } from "react"
 import { Euler, Line3, Matrix4, Quaternion, Vector3 } from "three"
 import { ShapeDefinition, useInstancedBody } from "../../utils/cannon"
-import { useInstance } from "../InstancedMesh"
-import { usePopulateLocations } from "./Boxes"
+import { useInstance } from "../InstancedMesh" 
 import Config from "../../Config"
 import { useStageObjects } from "../../utils/hooks"
 import RidgidStageObject from "../RidgidStageObject"
-import { ObjectType, Shelf } from "../../data/stages"
+import { ObjectType, type Shelf } from "../../data/stages"
 import { Tuple3 } from "../../types/global"
+import { usePopulateLocations } from "@data/hooks"
 
 
 interface ShelfProps {

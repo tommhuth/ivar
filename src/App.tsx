@@ -5,11 +5,14 @@ import { VSMShadowMap } from "three"
 import Config from "./Config"
 import UI from "./ui/UI"
 import Ivar from "./Ivar"
+import { tunnel } from "./tunnel" 
 
 export default function App() {
     return (
         <>
             <UI />
+            <tunnel.Out />
+
             <Canvas
                 gl={{
                     antialias: true,

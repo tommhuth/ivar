@@ -1,72 +1,18 @@
 import { Vec3, Box as BoxShape, Quaternion } from "cannon-es"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { Group, Line3, Vector3 } from "three"
-import { addBox, score, useStore } from "../../data/store" 
+import { useEffect, useMemo, useState } from "react"
+import { score, useStore } from "../../data/store"
 import { Body, CollisionEvent, useInstancedBody } from "../../utils/cannon"
 import { setMatrixAt } from "../../utils/utils"
 import { useInstance } from "../InstancedMesh"
 import random from "@huth/random"
 import animate from "@huth/animate"
-import { Html } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
+import { invalidate, useFrame } from "@react-three/fiber"
 import { ObjectType } from "../../data/stages"
 import { easeOutElastic, easeOutQuart } from "../../utils/easing"
-import { Tuple2, Tuple3 } from "../../types/global"
-
-interface Location {
-    path: Line3
-    height: number
-    depth: number
-}
-
-
-export function usePopulateLocations(
-    locations: Location[],
-    rotation: Tuple3,
-    sizeRange: Tuple2 = [.1, .3],
-    gapRange: Tuple2 = [.05, .2],
-) {
-    useEffect(() => {
-        let boxes: { position: Tuple3, size: Tuple3, rotation: Tuple3 }[] = []
-        let vec3 = new Vector3()
-
-        for (let location of locations) {
-            let length = location.path.distance()
-            let direction = random.pick(1, -1)
-            let t = direction === 1 ? 0 : 1
-            let width = random.float(...sizeRange)
-            let gap = 0
-            let canFit = (t: number) => {
-                return direction === 1 ? t < 1 : t > 0
-            }
-            let remainder = (t: number) => {
-                return direction === 1 ? 1 - t : t
-            }
-
-            t += random.float(0, .1) * direction
-
-            while (canFit(t + ((width + gap) * direction))) {
-                let position = location.path.at(t + (width / 2 + gap / 2) * direction, vec3)
-
-                boxes.push({
-                    position: position.toArray(),
-                    size: [
-                        width * length,
-                        random.float(location.height * .25, location.height),
-                        random.float(location.depth * .5, location.depth)
-                    ],
-                    rotation,
-                })
-
-                t += (width + gap) * direction
-                width = random.float(.1, Math.min(.35, remainder(t)))
-                gap = random.float(...gapRange)
-            }
-        }
-
-        addBox(boxes)
-    }, [locations])
-}
+import { Tuple3 } from "../../types/global"
+import { Camera, Vector3 } from "three"
+import { Tuple2 } from "src/types.global"
+import ScoreMessage from "../../ui/ScoreMessage"
 
 interface BoxProps {
     size: Tuple3
@@ -75,6 +21,28 @@ interface BoxProps {
     index: number
     dead: boolean
     id: string
+}
+
+
+function screenToWorld([x, y]: Tuple2, camera: Camera, distance = 1): Tuple3 {
+    // Normalize screen coordinates to the range [-1, 1]  
+    // Create a vector in normalized device coordinates
+    const ndc = new Vector3(
+        (x / window.innerWidth) * 2 - 1,
+        -(y / window.innerHeight) * 2 + 1,
+        1, // z=1 for "forward" direction
+    )
+
+    // Unproject the vector from NDC to world space
+    ndc.unproject(camera)
+
+    // Calculate direction vector from camera position to unprojected point
+    const direction = ndc.sub(camera.position).normalize()
+
+    // Scale the direction vector to the desired distance
+    const point3D = camera.position.clone().add(direction.multiplyScalar(distance))
+
+    return point3D.toArray()
 }
 
 
@@ -107,7 +75,6 @@ function Box({
         ready: ready && !dead,
         userData: { type: ObjectType.BOX, isDead: false }
     })
-    let ref = useRef<Group>(null)
     let stage = useStore(i => i.stage)
 
     useEffect(() => {
@@ -146,6 +113,7 @@ function Box({
                 to: { y: targetY, scale: 0, rx: rot.x, ry: rot.y, rz: rot.z, rw: rot.w },
                 duration: 900,
                 render({ y, scale, rx, ry, rz, rw }) {
+                    invalidate()
                     setMatrixAt({
                         instance,
                         index: index as number,
@@ -161,12 +129,6 @@ function Box({
             })
         }
     }, [dead])
-
-    useFrame(() => {
-        if (ref.current && !dead) {
-            ref.current.position.copy(body.position as unknown as Vector3)
-        }
-    })
 
     useFrame(() => {
         if (stage.settings.exitY && body.position.y < stage.settings.exitY && !dead) {
@@ -198,27 +160,13 @@ function Box({
         }
     }, [index, instance])
 
+
+    if (!dead) {
+        return null
+    }
+
     return (
-        <group ref={ref}>
-            {dead && (
-                <Html as="div" center >
-                    <div
-                        style={{
-                            fontSize: "1.85em",
-                            fontFamily: "var(--font-sans)",
-                            fontWeight: 900,
-                            padding: ".25em .5em",
-                            border: ".15em solid white",
-                            animation: dead ? "msg 2s both" : undefined,
-                            display: !dead ? "none" : undefined,
-                            color: "white",
-                        }}
-                    >
-                        +100
-                    </div>
-                </Html>
-            )}
-        </group>
+        <ScoreMessage position={body.position} />
     )
 }
 
