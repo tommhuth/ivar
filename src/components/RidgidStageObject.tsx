@@ -20,6 +20,6 @@ export default function RidgidStageObject({ body }: { body: Body }) {
     }
 
     return (
-        <ScoreMessage position={body.position} score={-750}/> 
+        <ScoreMessage id={body.id} position={body.position} score={-1000}/> 
     )  
 }

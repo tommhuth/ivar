@@ -90,7 +90,7 @@ export function useOrientationObserver(body: Body): boolean {
             if (
                 _directionUp.dot(_direction) < .35
                 || (stage.settings.exitY && body.position.y < stage.settings.exitY)
-            ) {
+            ) { 
                 setDead(true)
                 addPenalty()
             }

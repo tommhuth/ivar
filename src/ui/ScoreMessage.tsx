@@ -6,6 +6,7 @@ import { Vector2, Vector3 } from "three"
 import { tunnel } from "../tunnel"
 
 import "./ScoreMessage.scss"
+import { clamp } from "../utils/utils"
 
 let _vec3 = new Vector3()
 
@@ -33,13 +34,13 @@ function useWorldToScreen(position: Vector3 | Vec3) {
     return screenPosition
 }
 
-export default function ScoreMessage({ position, score = 100 }: { score?: number; position: Vec3 | Vector3 }) {
+export default function ScoreMessage({ id, position, score = 100 }: { id: string | number; score?: number; position: Vec3 | Vector3 }) {
     let screenPosition = useWorldToScreen(position)
     let messageRef = useRef<HTMLDivElement>(null)
 
     useFrame(() => {
-        messageRef.current?.style.setProperty("--x", screenPosition.x.toFixed(1) + "px")
-        messageRef.current?.style.setProperty("--y", screenPosition.y.toFixed(1) + "px")
+        messageRef.current?.style.setProperty("--x", clamp(screenPosition.x, 0, window.innerWidth).toFixed(1) + "px")
+        messageRef.current?.style.setProperty("--y", clamp(screenPosition.y, 0, window.innerHeight).toFixed(1) + "px")
     })
 
     return (
@@ -47,6 +48,7 @@ export default function ScoreMessage({ position, score = 100 }: { score?: number
             <div
                 ref={messageRef}
                 className="score-message"
+                key={id}
             >
                 {Math.sign(score) === 1 ? "+" : "−"}{Math.abs(score)}
             </div>

@@ -53,7 +53,7 @@ function useCannonBody({
         let body = new Body({
             mass,
             allowSleep: true,
-            sleepSpeedLimit: 1,
+            sleepSpeedLimit: .1,
             position: new Vec3(...position),
             velocity: new Vec3(...velocity),
             shape: !Array.isArray(definition) ? definition : undefined,

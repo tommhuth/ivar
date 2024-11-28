@@ -3,7 +3,7 @@ import { useMemo } from "react"
 import { Euler, Line3, Matrix4, Vector3, Quaternion as ThreeQuaternion } from "three"
 import Config from "../../Config"
 import { ShapeDefinition, useInstancedBody } from "../../utils/cannon"
-import { useOrientationObserver, useStageObjects } from "../../utils/hooks" 
+import { useStageObjects } from "../../utils/hooks" 
 import { useInstance } from "..//InstancedMesh"
 import RidgidStageObject from "../RidgidStageObject"
 import { ObjectType, type Table } from "../../data/stages"
@@ -68,9 +68,7 @@ function Table({ position = [0, 0, 0], rotation = [0, 0, 0] }: TableProps) {
         rotation,
         index,
         instance,
-    })
-
-    useOrientationObserver(body)
+    }) 
 
     usePopulateLocations(locations, rotation, [.25, .4], [.2, .35])
 

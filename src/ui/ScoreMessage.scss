@@ -2,8 +2,7 @@
     --x: -100em;
     --y: -100em; 
     --offset-y: 0px;
-    font-size: 2.5em;
-    font-weight: 100;
+    font-size: 2.5em; 
     position: fixed;
     z-index: 1000;
     left: var(--x);
@@ -29,7 +28,6 @@
 
     to {
         opacity: 0;
-        --offset-y: -4em; 
-        font-weight: 600;
+        --offset-y: -4em;  
     }
 }

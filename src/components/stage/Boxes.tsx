@@ -9,9 +9,7 @@ import animate from "@huth/animate"
 import { invalidate, useFrame } from "@react-three/fiber"
 import { ObjectType } from "../../data/stages"
 import { easeOutElastic, easeOutQuart } from "../../utils/easing"
-import { Tuple3 } from "../../types/global"
-import { Camera, Vector3 } from "three"
-import { Tuple2 } from "src/types.global"
+import { Tuple3 } from "../../types/global" 
 import ScoreMessage from "../../ui/ScoreMessage"
 
 interface BoxProps {
@@ -21,30 +19,7 @@ interface BoxProps {
     index: number
     dead: boolean
     id: string
-}
-
-
-function screenToWorld([x, y]: Tuple2, camera: Camera, distance = 1): Tuple3 {
-    // Normalize screen coordinates to the range [-1, 1]  
-    // Create a vector in normalized device coordinates
-    const ndc = new Vector3(
-        (x / window.innerWidth) * 2 - 1,
-        -(y / window.innerHeight) * 2 + 1,
-        1, // z=1 for "forward" direction
-    )
-
-    // Unproject the vector from NDC to world space
-    ndc.unproject(camera)
-
-    // Calculate direction vector from camera position to unprojected point
-    const direction = ndc.sub(camera.position).normalize()
-
-    // Scale the direction vector to the desired distance
-    const point3D = camera.position.clone().add(direction.multiplyScalar(distance))
-
-    return point3D.toArray()
-}
-
+} 
 
 function Box({
     size = [1, 1, 1],
@@ -82,7 +57,7 @@ function Box({
             let onCollide = (e: CollisionEvent) => {
                 let target = [e.target, e.body].find(i => i.userData.type === ObjectType.GROUND)
 
-                if (target) {
+                if (target && !body.userData.isDead) {
                     body.userData.isDead = true
                     score(id)
                 }
@@ -166,7 +141,7 @@ function Box({
     }
 
     return (
-        <ScoreMessage position={body.position} />
+        <ScoreMessage id={body.id} position={body.position} />
     )
 }
 

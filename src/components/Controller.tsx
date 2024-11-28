@@ -9,9 +9,11 @@ import { clamp } from "../utils/utils"
 import { Line2 } from "three/examples/jsm/lines/Line2.js"
 import { extend, invalidate } from "@react-three/fiber"
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
-import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js" 
+import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
 import { Tuple3 } from "../types/global"
 import { lerp } from "three/src/math/MathUtils.js"
+import { blue } from "../utils/materials"
+import { easeInQuad } from "@data/shaping"
 
 extend({ Line2, LineMaterial, LineGeometry })
 
@@ -23,7 +25,7 @@ interface BallProps {
 }
 
 const RADIUS = .25
-const DAMPING = .4
+const DAMPING = .14
 const MASS = 8
 
 function Ball({
@@ -73,7 +75,7 @@ export default function Controller({ children }: { children: ReactNode }) {
     let targetReticleRef = useRef<Mesh>(null)
     let aiming = useStore(i => i.aiming)
     let stage = useStore(i => i.stage)
-    let fireThreshold = .5
+    let fireThreshold = .35
     let [positions, setPositions] = useState<number[]>([])
     let [colors, setColors] = useState<number[]>([])
     let world = useMemo(() => {
@@ -107,10 +109,17 @@ export default function Controller({ children }: { children: ReactNode }) {
         }
     }, [])
     let lineGeometryRef = useRef<LineGeometry>(null)
-    let lineRef = useRef<Line2>(null)
+    let pinRef = useRef<Mesh>(null)
+    let pinBaseRef = useRef<Mesh>(null)
+    let radialRef = useRef<Mesh>(null)
+    let dotRef = useRef<Mesh>(null)
     let hidePath = useCallback(() => {
         setPositions([0, 0, 0, 0, 0, 0])
         setColors([0, 0, 0, 0, 0, 0])
+        pinRef.current?.position.setComponent(1, -100)
+        pinBaseRef.current?.position.setComponent(1, -100)
+        radialRef.current?.position.setComponent(1, -100)
+        dotRef.current?.position.setComponent(1, -100)
     }, [])
     const calculateTrajectory = (start: Tuple3, velocity: Tuple3) => {
         let steps = 90
@@ -168,12 +177,11 @@ export default function Controller({ children }: { children: ReactNode }) {
         }
     }, [positions, colors])
 
+
     return (
         <>
-            <BallHandler />
-
             <line2
-                ref={lineRef}
+                position-y={0}
                 visible={!!positions.length && aiming}
             >
                 <lineGeometry ref={lineGeometryRef} />
@@ -184,10 +192,9 @@ export default function Controller({ children }: { children: ReactNode }) {
                     dashScale={0}
                     gapSize={0}
                     dashSize={0}
-                    linewidth={15}
+                    linewidth={8}
                 />
             </line2>
-
             <group
                 onPointerDown={e => {
                     let { panning } = store.getState()
@@ -196,33 +203,59 @@ export default function Controller({ children }: { children: ReactNode }) {
                         return
                     }
 
-                    e.stopPropagation()
+                    pinRef.current?.position.copy(e.point)
+                    pinBaseRef.current?.position.copy(e.point)
+                    dotRef.current?.position.copy(e.point)
                     data.start.copy(e.point)
+
+                    e.stopPropagation()
                     setAiming(true)
                 }}
                 onPointerMove={e => {
                     let { panning } = store.getState()
-                    let maxSpeed = 7
+                    let speed = 17
+                    let heightSpeed = 15
+                    let minHeightSpeed = 5
+                    let dragDistance = 3
 
-                    if (panning || !aiming || e.object.userData.type !== ObjectType.GROUND) {
+                    if (panning || !aiming || e.object.userData.type !== ObjectType.GROUND || !radialRef.current) {
                         return
                     }
 
                     invalidate()
                     e.stopPropagation()
 
+                    data.distance = clamp(data.start.distanceTo(e.point) / dragDistance, 0, 1)
                     data.end.copy(e.point)
+                        .sub(data.start)
+                        .normalize()
+                        .multiplyScalar(data.distance * dragDistance)
+                        .add(data.start)
                         .setComponent(1, data.start.y)
-                    data.distance = data.start.distanceTo(data.end)
                     data.velocity.copy(data.start)
                         .sub(data.end)
                         .normalize()
-                        .multiplyScalar(data.distance * maxSpeed)
-                        .setComponent(1, clamp(Math.pow(data.distance, 3), 8, 18))
+                        .multiplyScalar(easeInQuad(data.distance) * speed)
+                        .setComponent(1, easeInQuad(data.distance) * heightSpeed + minHeightSpeed)
 
-                    targetReticleRef.current?.scale.setScalar(data.distance * .25)
+                    // ui
+                    targetReticleRef.current?.scale.setScalar(data.distance * 2)
                         .setComponent(1, 1)
+                        .setScalar(0)
                     targetReticleRef.current?.position.copy(data.end)
+
+                    dotRef.current?.position.copy(data.end)
+
+                    radialRef.current?.position.copy(data.start)
+                    radialRef.current?.scale.set(
+                        1,
+                        1,
+                        data.distance * 3 + .15
+                    )
+                    radialRef.current.rotation.y = Math.atan2(
+                        data.end.x - data.start.x,
+                        data.end.z - data.start.z
+                    )
 
                     if (data.distance > fireThreshold) {
                         startTransition(() => {
@@ -267,8 +300,26 @@ export default function Controller({ children }: { children: ReactNode }) {
                     />
                 </mesh>
 
+                <mesh material={blue} ref={pinRef} castShadow receiveShadow>
+                    <cylinderGeometry args={[.15, .15, 2, 16, 1]} />
+                </mesh>
+                <mesh material={blue} ref={pinBaseRef} castShadow receiveShadow>
+                    <cylinderGeometry args={[.4, .4, .3, 16, 1]} />
+                </mesh>
+                <mesh ref={dotRef} castShadow receiveShadow>
+                    <cylinderGeometry args={[.35, .35, .25, 16, 1]} />
+                    <meshPhongMaterial emissive="#fff" emissiveIntensity={.15} color={"#fff"} />
+                </mesh>
+
+                <mesh ref={radialRef} castShadow receiveShadow>
+                    <boxGeometry args={[.4, .01, 1, 1, 1, 1]} onUpdate={e => e.translate(0, 0, .5)} />
+                    <meshPhongMaterial emissive="#fff" emissiveIntensity={.15} color={"#fff"} />
+                </mesh>
+
+                <BallHandler />
+
                 {children}
             </group>
         </>
     )
-}
+} 
