@@ -201,6 +201,8 @@ export default function Controller({ children }: { children: ReactNode }) {
         stripes.uniforms.uScale.needsUpdate = true
     })
 
+    useLayoutEffect(hideControls, [])
+
     useLayoutEffect(() => {
         if (aiming) {
             targetReticleRef.current?.position.copy(data.start)
