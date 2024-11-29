@@ -7,13 +7,15 @@ import { DEFAULT_GRAVITY, DEFAULT_ITERATIONS, useInstancedBody } from "../utils/
 import InstancedMesh, { useInstance } from "./InstancedMesh"
 import { clamp } from "../utils/utils"
 import { Line2 } from "three/examples/jsm/lines/Line2.js"
-import { extend, invalidate } from "@react-three/fiber"
+import { extend, invalidate, useFrame } from "@react-three/fiber"
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js"
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js"
 import { Tuple3 } from "../types/global"
 import { lerp } from "three/src/math/MathUtils.js"
 import { blue } from "../utils/materials"
 import { easeInQuad } from "@data/shaping"
+import { useShader } from "@data/hooks"
+import { glsl } from "@data/utils"
 
 extend({ Line2, LineMaterial, LineGeometry })
 
@@ -113,7 +115,7 @@ export default function Controller({ children }: { children: ReactNode }) {
     let pinBaseRef = useRef<Mesh>(null)
     let radialRef = useRef<Mesh>(null)
     let dotRef = useRef<Mesh>(null)
-    let hidePath = useCallback(() => {
+    let hideControls = useCallback(() => {
         setPositions([0, 0, 0, 0, 0, 0])
         setColors([0, 0, 0, 0, 0, 0])
         pinRef.current?.position.setComponent(1, -100)
@@ -160,6 +162,44 @@ export default function Controller({ children }: { children: ReactNode }) {
             setColors(colors)
         })
     }
+    const stripes = useShader({
+        uniforms: {
+            uTime: { value: 0 },
+            uScale: { value: new Vector3() },
+        },
+        shared: glsl`
+            uniform float uTime;
+            uniform vec3 uScale;
+            varying vec3 vPosition;
+        `,
+        vertex: {
+            main: glsl`
+                vPosition = position;
+            `
+        },
+        fragment: {
+            main: glsl`
+                // thanks chattyman 
+                float stripeWidth = 0.25;  
+                float speed = 1.0;  
+                float stripePattern = step(0.5, mod((vPosition.z / (1. / uScale.z) + uTime * speed) / stripeWidth, 1.0)); 
+              
+                gl_FragColor.a = stripePattern;
+            `
+        }
+    })
+
+    useFrame((state, delta) => {
+        if (!radialRef.current) {
+            return 
+        }
+
+        stripes.uniforms.uTime.value += delta
+        stripes.uniforms.uTime.needsUpdate = true
+
+        stripes.uniforms.uScale.value.copy(radialRef.current.scale)
+        stripes.uniforms.uScale.needsUpdate = true
+    })
 
     useLayoutEffect(() => {
         if (aiming) {
@@ -176,6 +216,21 @@ export default function Controller({ children }: { children: ReactNode }) {
             lineGeometryRef.current?.setColors(colors)
         }
     }, [positions, colors])
+
+    useEffect(() => {
+        let leave = () => {
+            hideControls()
+            setAiming(false)
+        }
+
+        window.document.addEventListener("pointerleave", leave)
+        window.document.addEventListener("visibilitychange", leave)
+
+        return () => {
+            window.document.removeEventListener("pointerleave", leave)
+            window.document.removeEventListener("visibilitychange", leave)
+        }
+    }, [])
 
 
     return (
@@ -212,7 +267,7 @@ export default function Controller({ children }: { children: ReactNode }) {
                     setAiming(true)
                 }}
                 onPointerMove={e => {
-                    let { panning } = store.getState()
+                    let { panning, aiming } = store.getState()
                     let speed = 17
                     let heightSpeed = 15
                     let minHeightSpeed = 5
@@ -271,14 +326,13 @@ export default function Controller({ children }: { children: ReactNode }) {
                 }}
                 onPointerCancel={() => {
                     setAiming(false)
-                    hidePath()
+                    hideControls()
                 }}
                 onPointerUp={(e) => {
-                    setAiming(false)
-
                     if (e.object.userData.type === ObjectType.GROUND) {
                         e.stopPropagation()
-                        hidePath()
+                        setAiming(false)
+                        hideControls()
 
                         if (data.distance > fireThreshold) {
                             addBall(
@@ -312,8 +366,14 @@ export default function Controller({ children }: { children: ReactNode }) {
                 </mesh>
 
                 <mesh ref={radialRef} castShadow receiveShadow>
-                    <boxGeometry args={[.4, .01, 1, 1, 1, 1]} onUpdate={e => e.translate(0, 0, .5)} />
-                    <meshPhongMaterial emissive="#fff" emissiveIntensity={.15} color={"#fff"} />
+                    <boxGeometry args={[.35, .01, 1, 1, 1, 1]} onUpdate={e => e.translate(0, 0, .5)} />
+                    <meshPhongMaterial
+                        onBeforeCompile={stripes.onBeforeCompile}
+                        emissive="#fff"
+                        emissiveIntensity={.15}
+                        color={"#fff"}
+                        transparent
+                    />
                 </mesh>
 
                 <BallHandler />
