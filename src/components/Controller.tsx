@@ -2,6 +2,8 @@ import { Body, Box, GSSolver, Sphere as SphereShape, SplitSolver, Vec3, World } 
 import { ReactNode, startTransition, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { Mesh, Vector3 } from "three"
 import { ObjectType } from "../data/stages"
+import { debounce } from "throttle-debounce"
+
 import { addBall, setAiming, store, useStore } from "../data/store"
 import { DEFAULT_GRAVITY, DEFAULT_ITERATIONS, useInstancedBody } from "../utils/cannon"
 import InstancedMesh, { useInstance } from "./InstancedMesh"
@@ -73,8 +75,9 @@ function BallHandler() {
     )
 }
 
-const emptyPositions = [0, -100, 0, 0, -100, 0]
+const emptyPositions = [0, -10_000, 0, 0, -10_000, 0]
 const emptyColors = [0, 0, 0, 0, 0, 0]
+const up = new Vector3(0, 1, 0)
 
 export default function Controller({ children }: { children: ReactNode }) {
     let targetReticleRef = useRef<Mesh>(null)
@@ -126,45 +129,50 @@ export default function Controller({ children }: { children: ReactNode }) {
         radialRef.current?.position.setComponent(1, -100)
         dotRef.current?.position.setComponent(1, -100)
     }, [])
-    const calculateTrajectory = (start: Tuple3, velocity: Tuple3) => {
-        let steps = 90
-        let sphere = new Body({
-            mass: MASS,
-            shape: new SphereShape(RADIUS),
-            velocity: new Vec3(...velocity),
-            position: new Vec3(...start),
-            angularDamping: DAMPING,
-            linearDamping: DAMPING
-        })
-        let t = 0
-        let dt = 1 / 30
-        let positions: number[] = []
-        let colors: number[] = []
+    const calculateTrajectory = useMemo(() => {
+        return debounce(
+            150,
+            (start: Tuple3, velocity: Tuple3) => {
+                let steps = 90
+                let sphere = new Body({
+                    mass: MASS,
+                    shape: new SphereShape(RADIUS),
+                    velocity: new Vec3(...velocity),
+                    position: new Vec3(...start),
+                    angularDamping: DAMPING,
+                    linearDamping: DAMPING
+                })
+                let t = 0
+                let dt = 1 / 30
+                let positions: number[] = []
+                let colors: number[] = []
 
-        world.addBody(sphere)
+                world.addBody(sphere)
 
-        for (let i = 0; i < steps; i++) {
-            world.step(dt)
-            t += dt
+                for (let i = 0; i < steps; i++) {
+                    world.step(dt)
+                    t += dt
 
-            if (t > .0051 || i === 0 || i === steps - 1) {
-                t = 0
-                positions.push(...sphere.position.toArray())
-                colors.push(
-                    lerp(1, 0, (i / steps)),
-                    lerp(1, 0, (i / steps)),
-                    1,
-                )
-            }
-        }
+                    if (t > .0051 || i === 0 || i === steps - 1) {
+                        t = 0
+                        positions.push(...sphere.position.toArray())
+                        colors.push(
+                            lerp(1, 0, (i / steps)),
+                            lerp(1, 0, (i / steps)),
+                            1,
+                        )
+                    }
+                }
 
-        world.removeBody(sphere)
+                world.removeBody(sphere)
 
-        startTransition(() => {
-            setPositions(positions)
-            setColors(colors)
-        })
-    }
+                startTransition(() => {
+                    setPositions(positions)
+                    setColors(colors)
+                })
+            },
+        )
+    }, [])
     const stripes = useShader({
         uniforms: {
             uTime: { value: 0 },
@@ -258,18 +266,23 @@ export default function Controller({ children }: { children: ReactNode }) {
             <group
                 onPointerDown={e => {
                     let { panning } = store.getState()
+                    let isFlatSurface = e.face?.normal ? up.dot(e.face.normal) > .85 : true
 
                     if (panning || e.object.userData.type !== ObjectType.GROUND) {
                         return
                     }
 
-                    pinRef.current?.position.copy(e.point)
-                    pinBaseRef.current?.position.copy(e.point)
-                    dotRef.current?.position.copy(e.point)
-                    data.start.copy(e.point)
-
                     e.stopPropagation()
-                    setAiming(true)
+
+                    if (isFlatSurface) {
+                        pinRef.current?.position.copy(e.point)
+                        pinBaseRef.current?.position.copy(e.point)
+                        dotRef.current?.position.copy(e.point)
+                        data.start.copy(e.point)
+
+                        setAiming(true)
+                        invalidate()
+                    }
                 }}
                 onPointerMove={e => {
                     let { panning, aiming } = store.getState()
@@ -277,8 +290,15 @@ export default function Controller({ children }: { children: ReactNode }) {
                     let heightSpeed = 15
                     let minHeightSpeed = 5
                     let dragDistance = 3
+                    let isFlatSurface = e.face?.normal ? up.dot(e.face.normal) > .85 : true
 
-                    if (panning || !aiming || e.object.userData.type !== ObjectType.GROUND || !radialRef.current) {
+                    if (
+                        panning
+                        || !aiming
+                        || e.object.userData.type !== ObjectType.GROUND
+                        || !radialRef.current
+                        || !isFlatSurface
+                    ) {
                         return
                     }
 
@@ -318,26 +338,28 @@ export default function Controller({ children }: { children: ReactNode }) {
                     )
 
                     if (data.distance > fireThreshold) {
-                        startTransition(() => {
-                            calculateTrajectory(
-                                [data.end.x, data.end.y + RADIUS, data.end.z],
-                                data.velocity.toArray()
-                            )
-                        })
+                        calculateTrajectory(
+                            [data.end.x, data.end.y + RADIUS, data.end.z],
+                            data.velocity.toArray()
+                        )
                     } else {
-                        setPositions(emptyPositions)
-                        setColors(emptyColors)
+                        startTransition(() => {
+                            setPositions(emptyPositions)
+                            setColors(emptyColors)
+                        })
                     }
                 }}
                 onPointerCancel={() => {
                     setAiming(false)
                     hideControls()
+                    invalidate()
                 }}
                 onPointerUp={(e) => {
                     if (e.object.userData.type === ObjectType.GROUND) {
                         e.stopPropagation()
                         setAiming(false)
                         hideControls()
+                        invalidate()
 
                         if (data.distance > fireThreshold) {
                             addBall(
