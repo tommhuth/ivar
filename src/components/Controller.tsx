@@ -73,13 +73,16 @@ function BallHandler() {
     )
 }
 
+const emptyPositions = [0, -100, 0, 0, -100, 0]
+const emptyColors = [0, 0, 0, 0, 0, 0]
+
 export default function Controller({ children }: { children: ReactNode }) {
     let targetReticleRef = useRef<Mesh>(null)
     let aiming = useStore(i => i.aiming)
     let stage = useStore(i => i.stage)
     let fireThreshold = .35
-    let [positions, setPositions] = useState<number[]>([])
-    let [colors, setColors] = useState<number[]>([])
+    let [positions, setPositions] = useState<number[]>(emptyPositions)
+    let [colors, setColors] = useState<number[]>(emptyColors)
     let world = useMemo(() => {
         let solver = new SplitSolver(new GSSolver())
 
@@ -116,8 +119,8 @@ export default function Controller({ children }: { children: ReactNode }) {
     let radialRef = useRef<Mesh>(null)
     let dotRef = useRef<Mesh>(null)
     let hideControls = useCallback(() => {
-        setPositions([0, 0, 0, 0, 0, 0])
-        setColors([0, 0, 0, 0, 0, 0])
+        setPositions(emptyPositions)
+        setColors(emptyColors)
         pinRef.current?.position.setComponent(1, -100)
         pinBaseRef.current?.position.setComponent(1, -100)
         radialRef.current?.position.setComponent(1, -100)
@@ -191,7 +194,7 @@ export default function Controller({ children }: { children: ReactNode }) {
 
     useFrame((state, delta) => {
         if (!radialRef.current) {
-            return 
+            return
         }
 
         stripes.uniforms.uTime.value += delta
@@ -213,9 +216,10 @@ export default function Controller({ children }: { children: ReactNode }) {
     }, [aiming])
 
     useEffect(() => {
-        if (positions.length) {
+        if (lineGeometryRef.current) {
             lineGeometryRef.current?.setPositions(positions)
             lineGeometryRef.current?.setColors(colors)
+            lineGeometryRef.current.attributes.position.needsUpdate = true
         }
     }, [positions, colors])
 
@@ -234,12 +238,11 @@ export default function Controller({ children }: { children: ReactNode }) {
         }
     }, [])
 
-
     return (
         <>
             <line2
                 position-y={0}
-                visible={!!positions.length && aiming}
+                visible={aiming}
             >
                 <lineGeometry ref={lineGeometryRef} />
                 <lineMaterial
@@ -322,8 +325,8 @@ export default function Controller({ children }: { children: ReactNode }) {
                             )
                         })
                     } else {
-                        setPositions([0, -100, 0, 0, -100, 0])
-                        setColors([0, -100, 0, 0, -100, 0])
+                        setPositions(emptyPositions)
+                        setColors(emptyColors)
                     }
                 }}
                 onPointerCancel={() => {
