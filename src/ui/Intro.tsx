@@ -2,7 +2,7 @@ import { stages } from "../data/stages"
 import { reset, setStage, setState, State, useStore } from "../data/store"
 import Arrow from "./Arrow"
 
-import "./intro.scss"
+import "./introx.scss"
 
 export default function Intro() {
     let state = useStore(i => i.state)
